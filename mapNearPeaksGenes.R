@@ -81,9 +81,6 @@ findFeaturesInWindow <- function(x, vec, window_size, window_type="centred", ove
 # findPointFeaturesInWindow(15000, feature_starts, 5000)
 # intersect(findPointFeaturesInWindow(15000, feature_starts, 5000), findPointFeaturesInWindow(15000, feature_ends, 5000))
 findPointFeaturesInWindow <- function(x, vec, window_size, window_type="centred")  {
-	
-	#window_start <- x - floor(window_size/2)
-	#window_end <- window_start + window_size
 	window <- makeWindow(x,window_size, window_type)
 	which(findInterval(vec,window) == 1)
 }
