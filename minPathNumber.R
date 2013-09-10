@@ -38,13 +38,16 @@ recursePaths <- function(map, currentPath, index, pathList=list()) {
 
 minPathNumber <- function(junctionsTable, extension=0)  {
 	
-	n <- nrow(junctionsTable)
+
 
 	# make a copy of the junctions to add extensions to act as exons
-	newJunctions <- junctionsTable 
+	# also remove junctions with exact same start and end.
+	newJunctions <- unique(subset(junctionsTable, select=c(chr, start, end)))
 	#newJunctions$start <- newJunctions$start - extension
 	#newJunctions$end <- newJunctions$end + extension
 	
+	n <- nrow(newJunctions)		
+
 	# create a matrix reporting which junctions overlap with each other.
 	overlap.matrix <- getOverlapMatrix(newJunctions$start, newJunctions$end)
 
