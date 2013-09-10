@@ -48,6 +48,10 @@ minPathNumber <- function(junctionsTable, extension=0)  {
 	
 	n <- nrow(newJunctions)		
 
+	if(n == 1)  {		# only 1 junction
+		return(1)
+	}
+
 	# create a matrix reporting which junctions overlap with each other.
 	overlap.matrix <- getOverlapMatrix(newJunctions$start, newJunctions$end)
 
