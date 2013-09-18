@@ -44,7 +44,7 @@ sum(getOverlapMatrix(testJuncs$start, testJuncs$end, half_matrix=TRUE), na.rm=T)
 # but can easily show that this number is not a good predictor of solvability with minPathNumber()
 # e.g. compare the above testJuncs (which are very slow to compute) with a set where no junctions overlap EXCEPT two that overlap all others.
 testJuncs.easy <- data.frame(chr="chr1", start=c(2,3, seq(1, 751, by=50)), end= c(820,821,seq(21, 771, by=50)))
-sum(getOverlapMatrix(testJuncs.easy $start, testJuncs.easy $end, half_matrix=TRUE), na.rm=T) - nrow(testJuncs.easy )
+sum(getOverlapMatrix(testJuncs.easy$start, testJuncs.easy$end, half_matrix=TRUE), na.rm=T) - nrow(testJuncs.easy )
 
 #system.time(minPathNumber(testJuncs.easy))
 # Errrr. not easy apparently!  This one also seems to take a very long time (i stopped it after 15 mins). 
