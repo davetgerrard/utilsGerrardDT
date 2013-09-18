@@ -30,6 +30,8 @@ rowCounts <-   scoreCardinalities(binarizeTable(rawDataLong))
 
 plotEuler(rowCounts[,1:6], rowCounts$count, names(rowCounts[,1:6]))
 
+# may want to ignore features present in ALL samples.  N.B. dropEmpty set does same for features absent from all samples but not relevant here.
+plotEuler(rowCounts[,1:6], rowCounts$count, names(rowCounts[,1:6]), dropFullSet=T)
 
 
 

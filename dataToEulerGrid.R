@@ -131,10 +131,28 @@ plotEuler.old <- function(binaryGrid, counts, labels)  {
 # binaryGrid	a data.frame containing only 0/1. One column per sample. 
 # counts		vector of counts. Must match number of rows in binary grid (and in same order)
 # labels
-plotEuler <- function(binaryGrid, counts, labels, y_buffer=0.1, fg.colour="darkolivegreen4",bg.colour="grey")  {
+plotEuler <- function(binaryGrid, counts, labels, y_buffer=0.1, dropEmptySet=TRUE, dropFullSet=FALSE, dropSets='', fg.colour="darkolivegreen4",bg.colour="grey")  {
 
-	n.counts <- length(counts)
 	n.samples <- ncol(binaryGrid)
+
+	#rownames(binaryGrid) <- apply(binaryGrid)     # should already be binary chain matching the row if user used scoreCardinalities()
+
+	# allow removal of certain sets from the table of counts (e.g. empty set , full set)
+	if(dropEmptySet)  {
+		dropSets <- intersect(rownames( binaryGrid),unique(c(dropSets, paste(rep(0,n.samples),collapse=""))))
+	}
+	if(dropFullSet)  {
+		dropSets <- intersect(rownames( binaryGrid),unique(c(dropSets, paste(rep(1,n.samples),collapse=""))))
+	}
+	print(paste("Dropping:", paste(dropSets, collapse=",")))
+	
+	keepSet <- setdiff(rownames(binaryGrid), dropSets)
+	keepSetIndex <- match(keepSet , rownames(binaryGrid))
+	
+	# remove unwanted sets.
+	binaryGrid <- binaryGrid[keepSetIndex,]
+	counts <- counts[keepSetIndex]
+	n.counts <- length(counts)
 	
 	bar.bottom <- 1 + y_buffer
 	max.count <- max(counts)
