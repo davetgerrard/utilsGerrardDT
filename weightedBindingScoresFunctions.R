@@ -161,10 +161,15 @@ scoreTestOnFpMatrix <-  function(fg.fpMatrix, bg.fpMatrix, test="wilcox", factor
 	}
 
 	resultSummary <- data.frame(encodeFactor=names(testResults),p.value=testResults, bg.mean=bg.means, fg.mean=fg.means)
-	resultSummary  <- resultSummary[order(resultSummary$p.value),]
-	resultSummary$qvalue <- qvalue(resultSummary$p.value)$qvalues
-	#resultSummary  <- resultSummary[order(resultSummary$qvalue),]
-	return(resultSummary)
+	resultSummary$qvalue <- NA
+	resultSummary.na <- resultSummary[is.na(resultSummary$p.value), ]
+	print(nrow(resultSummary.na))
+	resultSummary.values <- resultSummary[!is.na(resultSummary$p.value), ]
+	resultSummary.values <- resultSummary.values[order(resultSummary.values$p.value),]
+	print(nrow(resultSummary.values))
+	resultSummary.values$qvalue <- qvalue(resultSummary.values$p.value)$qvalues
+	resultSummary  <- rbind(resultSummary.values, resultSummary.na)
+	resultSummary  <- resultSummary[order(resultSummary$qvalue),]
 }
 
 
