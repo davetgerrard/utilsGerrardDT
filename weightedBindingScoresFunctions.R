@@ -118,15 +118,15 @@ scoreTestOnFPML <-  function(fg.FPML, bg.FPML, test="wilcox", factors=names(fg.F
 
 	for(thisFactor in factors)  {
 		#print(paste(thisFactor, ">"))
-		fg.scores <- fg.FPML[[thisFactor]][,'score']	
+		fg.scores <- fg.FPML[[thisFactor]]	
 		#print(fg.scores)
-		bg.scores <- bg.FPML[[thisFactor]][,'score']
+		bg.scores <- bg.FPML[[thisFactor]]
 		#print(bg.scores)
-		if( length(fg.scores) < 1  ||  length(bg.scores) < 1 )  {
+		if( nrow(fg.scores) < 1  ||  nrow(bg.scores) < 1 )  {
 			print(thisFactor)
 			testResults[thisFactor] <- NA	
 		} else  {
-			testResults[thisFactor] <- wilcox.test(fg.scores,bg.scores, alternative="t")$p.value
+			testResults[thisFactor] <- wilcox.test(fg.scores[,'score'],bg.scores[,'score'], alternative="t")$p.value
 		}
 		fg.means[thisFactor] <- mean(fg.scores)
 		bg.means[thisFactor] <- mean(bg.scores)
