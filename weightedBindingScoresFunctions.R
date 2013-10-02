@@ -94,9 +94,12 @@ getFactorPositionMatrixListStranded <- function(bindingData, boundFactors, focal
 				cat(thisFactor, " ")
 				thisFocalFactor.index <- validBound$name == thisFactor
 				#cat(sum(thisFocalFactor.index), "\n")
-				#cat(thisFocalFactor.index, "\n")
-				thisRow <- data.frame(rel.start=validBound$relPosition.start[thisFocalFactor.index], rel.end=validBound$relPosition.end[thisFocalFactor.index], rel.midpoint=validBound$relPosition.midpoint[thisFocalFactor.index], score=validBound$score[thisFocalFactor.index])
-				factorPositionMatrixList[[thisFactor]] <- rbind(factorPositionMatrixList[[thisFactor]], thisRow)
+				if(sum(thisFocalFactor.index ) > 0)  {
+					#thisRow <- data.frame(rel.start=validBound$relPosition.start[thisFocalFactor.index], rel.end=validBound$relPosition.end[thisFocalFactor.index], rel.midpoint=validBound$relPosition.midpoint[thisFocalFactor.index], score=validBound$score[thisFocalFactor.index])
+					#cat(thisFocalFactor.index)
+					thisRow <- data.frame(focal.chr = as.character(focalChroms[i]), focal.point=as.integer(focalPoints[i]), rel.start=validBound$relPosition.start[thisFocalFactor.index], rel.end=validBound$relPosition.end[thisFocalFactor.index], rel.midpoint=validBound$relPosition.midpoint[thisFocalFactor.index], score=validBound$score[thisFocalFactor.index])
+					factorPositionMatrixList[[thisFactor]] <- rbind(factorPositionMatrixList[[thisFactor]], thisRow)
+				}
 				cat(nrow(factorPositionMatrixList[[thisFactor]]), " ")
 			}
 		}
