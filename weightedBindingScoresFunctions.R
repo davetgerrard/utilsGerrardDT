@@ -26,6 +26,36 @@ getFactorProfile <- function(geneId, bindingData, focalChrom, focalPoint, viewWi
 	return(factorProfile)
 }
 
+# generates a sparse matrix containing weighted binding scores for each factor for each gene.
+# Used for statistical testing.
+createFactorProfileMatrix <- function(bindingData, geneIds, geneData, chromColumn="chr", startColumn="tss", strandColumn="strand", viewWindow=100000,effectDistance=50000)  {
+	factorScores <- list()
+	for(thisGene in geneIds)  {
+		factorScores[[thisGene]] <- getFactorProfile(thisGene, bindingData=bindingData,focalChrom=as.character(geneData[thisGene,chromColumn]),focalPoint=geneData[thisGene,startColumn],viewWindow=viewWindow,effectDistance=effectDistance) 
+
+	}
+	#return(factorScores)
+
+	allFactors <- levels(bindingData$name)
+
+	factorSummary <- matrix(0,nrow=length(allFactors), ncol=length(geneIds),dimnames=list(factor=allFactors, gene=geneIds))
+	for(thisGene in names(factorScores))  {
+		if(length(factorScores[[thisGene]]) > 0)	{
+			if( nrow(factorScores[[thisGene]]) >2)	{	# don't let empty results mess things up. Empty dataframes have length 2
+				factorSummary[factorScores[[thisGene]][,'factor'],thisGene]  <- factorScores[[thisGene]][,'x'] 
+			}
+		}
+	}
+	return(factorSummary)
+}
+
+
+
+## test on factorProfileMatrix
+
+
+
+# used to get relative positions and binding strengths (scores) for regions for use in barplots
 #bindingData must have columns: chr, start, end, name, score.
 getFactorPositionMatrixList <- function(bindingData, boundFactors, focalChroms, focalPoints, viewWindow=10000)  {
 	stopifnot(length(focalChroms) == length(focalPoints))
@@ -64,6 +94,7 @@ getFactorPositionMatrixList <- function(bindingData, boundFactors, focalChroms, 
 
 #test <- getFactorPositionMatrixList(allData, "CTCF", "chr13", 28494157)
 
+# used to get relative positions and binding strengths (scores) for regions for use in barplots
 # Stranded version
 #bindingData must have columns: chr, start, end, name, score.
 getFactorPositionMatrixListStranded <- function(bindingData, boundFactors, focalChroms, focalPoints, focalStrands='+', viewWindow=10000)  {
@@ -109,7 +140,37 @@ getFactorPositionMatrixListStranded <- function(bindingData, boundFactors, focal
 	return(factorPositionMatrixList)
 }
 
+#### test each factor in matrices from createFactorProfileMatrix()
+scoreTestOnFpMatrix <-  function(fg.fpMatrix, bg.fpMatrix, test="wilcox", factors=row.names(fg.fpMatrix))  {
+	library(qvalue)
+	testResults <- numeric()
+	fg.means <- numeric()
+	bg.means <- numeric()
 
+	for(thisFactor in factors)  {
+		#print(paste(thisFactor, ">"))
+		fg.scores <- fg.fpMatrix[thisFactor,]	
+		#print(fg.scores)
+		bg.scores <- bg.fpMatrix[thisFactor,]
+		#print(bg.scores)
+		testResults[thisFactor] <- switch(test, wilcox = wilcox.test(fg.scores,bg.scores, alternative="t")$p.value, 
+										ks = ks.test(fg.scores,bg.scores, alternative="t")$p.value)
+		fg.means[thisFactor] <- mean(fg.scores)
+		bg.means[thisFactor] <- mean(bg.scores)
+		
+	}
+
+	resultSummary <- data.frame(encodeFactor=names(testResults),p.value=testResults, bg.mean=bg.means, fg.mean=fg.means)
+	resultSummary  <- resultSummary[order(resultSummary$p.value),]
+	resultSummary$qvalue <- qvalue(resultSummary$p.value)$qvalues
+	#resultSummary  <- resultSummary[order(resultSummary$qvalue),]
+	return(resultSummary)
+}
+
+
+
+## DO NOT USE
+## Early implementation trying to do stats on incomplete factor profiles (lacking zeros).
 scoreTestOnFPML <-  function(fg.FPML, bg.FPML, test="wilcox", factors=names(fg.FPML))  {
 	library(qvalue)
 	testResults <- numeric()
@@ -128,21 +189,23 @@ scoreTestOnFPML <-  function(fg.FPML, bg.FPML, test="wilcox", factors=names(fg.F
 			fg.means[thisFactor] <- NA	
 			bg.means[thisFactor] <- NA	
 		} else  {
-			testResults[thisFactor] <- wilcox.test(fg.scores[,'score'],bg.scores[,'score'], alternative="t")$p.value
+			testResults[thisFactor] <- switch(test, wilcox = wilcox.test(fg.scores[,'score'],bg.scores[,'score'], alternative="t")$p.value, 
+										ks = ks.test(fg.scores[,'score'],bg.scores[,'score'], alternative="t")$p.value)
 			fg.means[thisFactor] <- mean(fg.scores[,'score'])
 			bg.means[thisFactor] <- mean(bg.scores[,'score'])
 		}
 	}
 
-	resultSummary <- data.frame(encodeFactor=names(testResults),wilcox.p.value=testResults, bg.mean=bg.means, fg.mean=fg.means)
+	resultSummary <- data.frame(encodeFactor=names(testResults),p.value=testResults, bg.mean=bg.means, fg.mean=fg.means)
 	
 	# cannot allow NA values to be submitted to qvalue(). Need to split the table and recombine after calculating qvalues.
 	resultSummary$qvalue <- NA
-	resultSummary.na <- resultSummary[is.na(resultSummary$wilcox.p.value), ]
+	resultSummary.na <- resultSummary[is.na(resultSummary$p.value), ]
 	print(nrow(resultSummary.na))
-	resultSummary.values <- resultSummary[!is.na(resultSummary$wilcox.p.value), ]	
+	resultSummary.values <- resultSummary[!is.na(resultSummary$p.value), ]
+	resultSummary.values <- resultSummary.values[order(resultSummary.values$p.value),]
 	print(nrow(resultSummary.values))
-	resultSummary.values$qvalue <- qvalue(resultSummary.values$wilcox.p.value)$qvalues
+	resultSummary.values$qvalue <- qvalue(resultSummary.values$p.value)$qvalues
 	resultSummary  <- rbind(resultSummary.values, resultSummary.na)
 	resultSummary  <- resultSummary[order(resultSummary$qvalue),]
 	
