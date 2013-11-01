@@ -24,9 +24,10 @@ metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFile="")  {
 
 
 	# read column names from file. 
-	col.names <- as.character(unlist(read.delim(baseFile, nrows=1, sep="\t", header=F, skip = headerLinePos-1)[1,] ))
-
-	# test if metadata file exists
+	#col.names <- as.character(unlist(read.delim(baseFile, nrows=1, sep=sep, header=F, skip = headerLinePos-1)[1,] ))
+	col.names <- scan(baseFile, what="character", nlines = 1, skip = headerLinePos-1, sep=sep, quiet=T)
+	col.names <- col.names[col.names != ""]     # don't want blank entries
+ 	# test if metadata file exists
 	# if it does, load it because it likely contains 
 	# descriptions that have been manually added and we don't want to lose.
 	metaDataFileName <- paste(baseFile, "META", sep=".")
@@ -43,11 +44,11 @@ metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFile="")  {
 
 	if(file.exists(metaDataFileName))  {
 		orig.metaData <- read.delim(metaDataFileName, sep=sep, header=T)
-		row.names(orig.metaData) <- orig.metaData[,1]	# test for unique or let R fail here anyway?
+		row.names(orig.metaData) <- orig.metaData[,'META.NAMES']	# test for unique or let R fail here anyway?
 		# test if all of col.names are accounted for.
-		shared <- intersect(orig.metaData[,1], col.names)
-		old.unique <- setdiff(orig.metaData[,1], col.names)	
-		new.unique <- setdiff(col.names, orig.metaData[,1])	
+		shared <- intersect(orig.metaData[,'META.NAMES'], col.names)
+		old.unique <- setdiff(orig.metaData[,'META.NAMES'], col.names)	
+		new.unique <- setdiff(col.names, orig.metaData[,'META.NAMES'])	
 		new.metaData <- orig.metaData
 		if(length(old.unique) > 0)  {
 			# some old names are not in new file
@@ -75,12 +76,22 @@ metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFile="")  {
 }
 
 
+stopifnot(FALSE)
+
 # examples
 #metaTable("blob")
 #metaTable("UNEX_XJ_1000bp.lincRNA.overlaps.txt", sep="\t")
 #metaTable("UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab", sep="\t")
-metaTable("UNEX_XJ_1000bp.lincRNA.overlaps.txt", templateFile="UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab.META", sep="\t")
-metaTable("UNEX_XJ.validCounts.intergenic.1000bpMerge.XieJennings.G15.min200bp20reads.contigTest.tab", templateFile="UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab.META", sep="\t")
+#metaTable("UNEX_XJ_1000bp.lincRNA.overlaps.txt", templateFile="UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab.META", sep="\t")
+#metaTable("UNEX_XJ.validCounts.intergenic.1000bpMerge.XieJennings.G15.min200bp20reads.contigTest.tab", templateFile="UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab.META", sep="\t")
+# following gave problems.
+#metaTable("UNEX_XJ.validCounts.intergenic.1000bpMerge.XieJennings.G15.tab", templateFile="UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab.META", sep="\t")
+
+#metaTable("UNEX_XJ.validCounts.intergenic.1000bpMerge.XieJennings.G15.min200bp20reads.tab", templateFile="UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab.META", sep="\t")
+
+
+
+
 
 
 
