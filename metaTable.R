@@ -1,23 +1,27 @@
 
 # write old 
 dropMeta <- function(df, oldFile, droppedFile="META_CHANGES.LOG", sep="")  {
-	if(file.exists(droppedFile))  {
-		df[,'META_FILE']  <- oldFile
-		write.table(df, file=droppedFile, append=T)
+	df[,'META_FILE']  <- oldFile
+	df[,'MOD_TIME']  <- date()
+	colOrder <- c('MOD_TIME','META_FILE', setdiff(names(df), c('MOD_TIME','META_FILE')))
+	df <- df[, colOrder]
+	if(file.exists(droppedFile))  {		
+		write.table(df, file=droppedFile, append=T, row.names=F, col.names=F, sep=sep)
 	}  else  {
 		# set up file with some annotation
 		#TODO
 		write("# Changelog of all .META files in this directory", file=droppedFile)
-		write.table(df, file=droppedFile, append=T)
+		write.table(df, file=droppedFile, append=T, row.names=F, col.names=F, sep=sep)
 	}
 
 }
 
 
-# template (if there are other meta files with the same descriptions that could be used). TODO
-metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFiles="")  {
+# template (if there is another meta file with the same descriptions that could be used). TODO
+metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFile="")  {
 	# test if file exists
 	if(!file.exists(baseFile))  stop(paste("Cannot find data file:", baseFile))
+
 
 	# read column names from file. 
 	col.names <- as.character(unlist(read.delim(baseFile, nrows=1, sep="\t", header=F, skip = headerLinePos-1)[1,] ))
@@ -26,6 +30,17 @@ metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFiles="")  {
 	# if it does, load it because it likely contains 
 	# descriptions that have been manually added and we don't want to lose.
 	metaDataFileName <- paste(baseFile, "META", sep=".")
+
+	if(templateFile != "") {
+		if(!file.exists(metaDataFileName))  {
+			print(paste("Using template file",templateFile ) )
+			file.copy(templateFile, metaDataFileName)
+		} else {
+			print(paste("Template file",templateFile , "ignored because",metaDataFileName, "already exists") )
+		}
+	}
+
+
 	if(file.exists(metaDataFileName))  {
 		orig.metaData <- read.delim(metaDataFileName, sep=sep, header=T)
 		row.names(orig.metaData) <- orig.metaData[,1]	# test for unique or let R fail here anyway?
@@ -38,7 +53,7 @@ metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFiles="")  {
 			# some old names are not in new file
 			# backupOldFile? Start or add to a META.CHANGELOG file.
 			dropMeta(orig.metaData[old.unique,], oldFile=metaDataFileName, sep=sep)
-			print(paste(length(new.unique)  ,"old annotations removed to", "META_CHANGES.LOG" ))
+			print(paste(length(old.unique)  ,"old annotations removed to", "META_CHANGES.LOG" ))
 			new.metaData <- orig.metaData[shared,]
 		} 
 		if(length(new.unique) > 0) {
@@ -64,6 +79,9 @@ metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFiles="")  {
 #metaTable("blob")
 #metaTable("UNEX_XJ_1000bp.lincRNA.overlaps.txt", sep="\t")
 #metaTable("UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab", sep="\t")
+metaTable("UNEX_XJ_1000bp.lincRNA.overlaps.txt", templateFile="UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab.META", sep="\t")
+metaTable("UNEX_XJ.validCounts.intergenic.1000bpMerge.XieJennings.G15.min200bp20reads.contigTest.tab", templateFile="UNEX_XJ.validCounts.intergenic.1000bpMerge.G15.min200bp20reads.extra.tab.META", sep="\t")
+
 
 
 
