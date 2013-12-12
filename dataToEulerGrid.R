@@ -30,7 +30,11 @@ reduceGroups <- function(binaryTable, groupDesign, groupRule="any", discardNonGr
 	# All sampleName values must be unique.
 	stopifnot(length(unique(groupDesign[,"sampleName"])) == nrow(groupDesign))
 
-	groups <- unique(groupDesign[,"groupName"])
+	# Don't want any factors in groupDesign.
+	groupDesign[,"sampleName"] <- as.character(groupDesign[,"sampleName"])
+	groupDesign[,"groupName"] <- as.character(groupDesign[,"groupName"])	
+
+	groups <- unique(groupDesign[,"groupName"])	# don't want a factor here!
 	nonGroupSamples <- setdiff(colnames(binaryTable),groupDesign[,"sampleName"] )	# get list of samples NOT in groups
 	#print(groups)
 	#print(nonGroupSamples)	
@@ -45,10 +49,10 @@ reduceGroups <- function(binaryTable, groupDesign, groupRule="any", discardNonGr
 		theseSamples <- groupDesign[groupDesign[,"groupName"]==thisGroup,"sampleName"]
 		sumVector <- rowSums(binaryTable[,theseSamples])
 		
-		reducedDat[,thisGroup] <- switch(groupRule,
-					any =  ifelse(sumVector > 0 , 1, 0),
+		reducedDat[,thisGroup] <- switch(groupRule,	
 					all =  ifelse(sumVector == length(theseSamples) , 1, 0),
-					majority =  ifelse(sumVector >= length(theseSamples)/2 , 1, 0)  )
+					majority =  ifelse(sumVector >= length(theseSamples)/2 , 1, 0),
+					any =  ifelse(sumVector > 0 , 1, 0)  )
 
 	}
 	
