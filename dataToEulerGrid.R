@@ -135,7 +135,7 @@ plotEuler.old <- function(binaryGrid, counts, labels)  {
 # binaryGrid	a data.frame containing only 0/1. One column per sample. 
 # counts		vector of counts. Must match number of rows in binary grid (and in same order)
 # labels
-plotEuler <- function(binaryGrid, counts, labels, y_buffer=0.1, dropEmptySet=TRUE, dropFullSet=FALSE, dropSets='', fg.colour="darkolivegreen4",bg.colour="grey")  {
+plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=0.1, dropEmptySet=TRUE, dropFullSet=FALSE, dropSets='', fg.colour="darkolivegreen4",bg.colour="grey")  {
 
 	n.samples <- ncol(binaryGrid)
 
@@ -176,7 +176,7 @@ plotEuler <- function(binaryGrid, counts, labels, y_buffer=0.1, dropEmptySet=TRU
 	# draw the grid and add labels
 	rect(grid.x1, grid.y1, grid.x2, grid.y2 , col=colVector)
 	labelPosVector <- (seq(0,1,length.out=n.samples+1)[-(n.samples + 1)])  + (seq(0,1,length.out=n.samples+1)[2] /2)
-	mtext(colnames(binaryGrid), side=2, at=labelPosVector, las=2)
+	mtext(labels, side=2, at=labelPosVector, las=2)
 
 	# draw the bargraph and add an axis
 	rect(seq(0,1,length.out=n.counts+1)[-(n.counts+1)],  bar.bottom , seq(0,1,length.out=n.counts+1)[-1], (counts/max.count) + bar.bottom , col="grey")

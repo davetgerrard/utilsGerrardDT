@@ -76,7 +76,7 @@ metaTable <- function(baseFile, headerLinePos=1, sep=" ", templateFile="")  {
 }
 
 
-stopifnot(FALSE)
+#stopifnot(FALSE)
 
 # examples
 #metaTable("blob")

@@ -57,7 +57,7 @@ createFactorProfileMatrix <- function(bindingData, geneIds, geneData, chromColum
 
 # used to get relative positions and binding strengths (scores) for regions for use in barplots
 #bindingData must have columns: chr, start, end, name, score.
-getFactorPositionMatrixList <- function(bindingData, boundFactors, focalChroms, focalPoints, viewWindow=10000)  {
+getFactorPositionMatrixList <- function(bindingData, boundFactors, focalChroms, focalPoints, viewWindow=10000, verbose=FALSE)  {
 	stopifnot(length(focalChroms) == length(focalPoints))
 	factorPositionMatrixList <- list()		#pre-declare so that empty list can be returned
 	for(thisFactor in boundFactors)  {
@@ -66,7 +66,7 @@ getFactorPositionMatrixList <- function(bindingData, boundFactors, focalChroms, 
 	}
 	
 	for(i in 1:length(focalPoints))  {	
-		cat(focalChroms[i],focalPoints[i],": ")
+		if(verbose) cat(focalChroms[i],focalPoints[i],": ")
 		windowStart <- max(0,(focalPoints[i]-viewWindow))
 		windowEnd <- focalPoints[i]+viewWindow
 	
@@ -77,16 +77,16 @@ getFactorPositionMatrixList <- function(bindingData, boundFactors, focalChroms, 
 			validBound$relPosition.end  <- validBound$end - focalPoints[i] 
 			validBound$relPosition.midpoint <- validBound$relPosition.start + floor(validBound$relPosition.end - validBound$relPosition.start)
 			for(thisFactor in boundFactors) {
-				cat(thisFactor, " ")
+				if(verbose) cat(thisFactor, " ")
 				thisFocalFactor.index <- validBound$name == thisFactor
 				#cat(sum(thisFocalFactor.index), "\n")
 				#cat(thisFocalFactor.index, "\n")
 				thisRow <- data.frame(rel.start=validBound$relPosition.start[thisFocalFactor.index], rel.end=validBound$relPosition.end[thisFocalFactor.index], rel.midpoint=validBound$relPosition.midpoint[thisFocalFactor.index], score=validBound$score[thisFocalFactor.index])
 				factorPositionMatrixList[[thisFactor]] <- rbind(factorPositionMatrixList[[thisFactor]], thisRow)
-				cat(nrow(factorPositionMatrixList[[thisFactor]]), " ")
+				if(verbose) cat(nrow(factorPositionMatrixList[[thisFactor]]), " ")
 			}
 		}
-		cat("\n")
+		if(verbose) cat("\n")
 	}
 
 	return(factorPositionMatrixList)
@@ -97,7 +97,7 @@ getFactorPositionMatrixList <- function(bindingData, boundFactors, focalChroms, 
 # used to get relative positions and binding strengths (scores) for regions for use in barplots
 # Stranded version
 #bindingData must have columns: chr, start, end, name, score.
-getFactorPositionMatrixListStranded <- function(bindingData, boundFactors, focalChroms, focalPoints, focalStrands='+', viewWindow=10000)  {
+getFactorPositionMatrixListStranded <- function(bindingData, boundFactors, focalChroms, focalPoints, focalStrands='+', viewWindow=10000, verbose=FALSE)  {
 	stopifnot(length(focalChroms) == length(focalPoints))
 	factorPositionMatrixList <- list()		#pre-declare so that empty list can be returned
 	for(thisFactor in boundFactors)  {
@@ -106,7 +106,7 @@ getFactorPositionMatrixListStranded <- function(bindingData, boundFactors, focal
 	}
 	
 	for(i in 1:length(focalPoints))  {	
-		cat(focalChroms[i],focalPoints[i],": ")
+		if(verbose) cat(focalChroms[i],focalPoints[i],": ")
 		windowStart <- max(0,(focalPoints[i]-viewWindow))
 		windowEnd <- focalPoints[i]+viewWindow
 	
@@ -122,7 +122,7 @@ getFactorPositionMatrixListStranded <- function(bindingData, boundFactors, focal
 			}
 			validBound$relPosition.midpoint <- validBound$relPosition.start + floor(validBound$relPosition.end - validBound$relPosition.start)
 			for(thisFactor in boundFactors) {
-				cat(thisFactor, " ")
+				if(verbose) cat(thisFactor, " ")
 				thisFocalFactor.index <- validBound$name == thisFactor
 				#cat(sum(thisFocalFactor.index), "\n")
 				if(sum(thisFocalFactor.index ) > 0)  {
@@ -131,10 +131,10 @@ getFactorPositionMatrixListStranded <- function(bindingData, boundFactors, focal
 					thisRow <- data.frame(focal.chr = as.character(focalChroms[i]), focal.point=as.integer(focalPoints[i]), rel.start=validBound$relPosition.start[thisFocalFactor.index], rel.end=validBound$relPosition.end[thisFocalFactor.index], rel.midpoint=validBound$relPosition.midpoint[thisFocalFactor.index], score=validBound$score[thisFocalFactor.index])
 					factorPositionMatrixList[[thisFactor]] <- rbind(factorPositionMatrixList[[thisFactor]], thisRow)
 				}
-				cat(nrow(factorPositionMatrixList[[thisFactor]]), " ")
+				if(verbose) cat(nrow(factorPositionMatrixList[[thisFactor]]), " ")
 			}
 		}
-		cat("\n")
+		if(verbose) cat("\n")
 	}
 
 	return(factorPositionMatrixList)
