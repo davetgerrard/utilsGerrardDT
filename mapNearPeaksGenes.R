@@ -54,6 +54,27 @@ findClosestSingleValue <- function(x, vec) {
 }
 
 
+# x a point location to measure against
+# data a table of equivalent features.
+# location.col which column in data should be compared to x
+# same.strand limit data only to those with strand equal to this value. 
+# limit results to data that is 'upstream' or 'downstream' of x 
+findClosest  <- function(x, data, location.col="start", use.strand=NULL, location=NULL)  {
+    filter.set <- switch(use.strand, 
+                         '+' = data[data$strand == '+', ], 
+                         '-' = data[data$strand == '-', ],
+                         data)
+    if(!is.null(location) & !is.null(use.strand)) {
+        
+        upstream.index <- filter.set[filter.set$strand == use.strand, ]
+        filter.set <- switch(location, 
+                         "upstream" = )
+    }
+    
+}
+
+
+
 #findExactMatches <- function(x, vec)  {
 #
 #}

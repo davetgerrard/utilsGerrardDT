@@ -10,13 +10,19 @@
 ## to invert a threshold use: new.table <- table == FALSE
 binarizeTable <- function(data, threshold=0, returnBoolean=FALSE)  {
 
+	if(length(threshold) == 1)  threshold <- rep(threshold, ncol(data))	# convert single value to vector
+	stopifnot(length(threshold) == ncol(data))
 	stopifnot(all(apply(data, 2, is.numeric)))
 	if(returnBoolean)  {
-		return.table <- data > threshold
+		return.table <- data > threshold[1]
 
 	} else  {
-		return.table <- apply(data, 2, FUN=function(x) ifelse(x > threshold, 1, 0))
-		
+		#return.table <- apply(data, 2, FUN=function(x) ifelse(x > threshold, 1, 0))
+		return.table <- data
+		for(i in 1:ncol(data)) {
+			return.table[,i] <- data[,i] > threshold[i]
+
+		}
 	}
 	return(as.data.frame(return.table))
 }  
@@ -135,7 +141,7 @@ plotEuler.old <- function(binaryGrid, counts, labels)  {
 # binaryGrid	a data.frame containing only 0/1. One column per sample. 
 # counts		vector of counts. Must match number of rows in binary grid (and in same order)
 # labels
-plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=0.1, dropEmptySet=TRUE, dropFullSet=FALSE, dropSets='', fg.colour="darkolivegreen4",bg.colour="grey")  {
+plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=0.1, bar.prop=0.5, dropEmptySet=TRUE, dropFullSet=FALSE, dropSets='', fg.colour="darkolivegreen4",bg.colour="grey")  {
 
 	n.samples <- ncol(binaryGrid)
 
@@ -158,14 +164,15 @@ plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=
 	counts <- counts[keepSetIndex]
 	n.counts <- length(counts)
 	
-	bar.bottom <- 1 + y_buffer
+	grid.height <- 2 - (bar.prop * 2)
+	bar.bottom <- grid.height + y_buffer
 	max.count <- max(counts)
 
 	# all rects in grid, specified by rows from bottom, moving left to right
 	grid.x1 <- rep(seq(0,1,length.out=n.counts+1)[-(n.counts + 1)] , n.samples)
 	grid.x2 <- rep(seq(0,1,length.out=n.counts+1)[-1] , n.samples)
-	grid.y1 <- rep(seq(0,1,length.out=n.samples+1)[-(n.samples + 1)] , each=n.counts)
-	grid.y2 <- rep(seq(0,1,length.out=n.samples+1)[-1] ,each= n.counts)
+	grid.y1 <- rep(seq(0,grid.height,length.out=n.samples+1)[-(n.samples + 1)] , each=n.counts)
+	grid.y2 <- rep(seq(0,grid.height,length.out=n.samples+1)[-1] ,each= n.counts)
 
 	colVector <- unlist(binaryGrid)   # concatenation by colums - to be used as rows from bottom, left to right.
 	colVector <- ifelse(colVector == 1,fg.colour, bg.colour )
@@ -175,7 +182,7 @@ plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=
 	plot.window(xlim=c(0,1),ylim=c(0,1+bar.bottom))
 	# draw the grid and add labels
 	rect(grid.x1, grid.y1, grid.x2, grid.y2 , col=colVector)
-	labelPosVector <- (seq(0,1,length.out=n.samples+1)[-(n.samples + 1)])  + (seq(0,1,length.out=n.samples+1)[2] /2)
+	labelPosVector <- (seq(0,grid.height,length.out=n.samples+1)[-(n.samples + 1)])  + (seq(0,1,length.out=n.samples+1)[2] /2)
 	mtext(labels, side=2, at=labelPosVector, las=2)
 
 	# draw the bargraph and add an axis

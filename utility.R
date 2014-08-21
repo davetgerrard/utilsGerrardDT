@@ -83,3 +83,23 @@ note <- function(df, text, append=TRUE, row.ids, id.column="name", note.column="
 #test.df <- note(test.df, "test",  row.ids="c")
 
 
+
+# x is a matrix or data frame with two columns.
+# should getting plotting zone from graphics device?
+arrangeLabels <- function(x, style="vertical", weights=NULL, xlim=c(0,1), ylim=c(0,1))  {
+    x.order <- rank(x[,1], ties.method="first")
+    y.order <- rank(x[,2], ties.method="first")
+    
+    
+    
+    
+    y.pos <- seq(min(ylim), max(ylim), length.out=length(y.order))
+    x.pos <- rep(max(xlim), length(x.order))
+    
+    if(!is.null(weights))  {
+        y.order.wt <- y.order * (weights/sum(weights))
+        y.order <- rank(y.order.wt, ties.method="first")
+    }
+    
+    return(list(points=x, lines=cbind(x.pos[x.order], y.pos[y.order])))
+}
