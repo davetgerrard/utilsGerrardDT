@@ -53,7 +53,8 @@ reduceGroups <- function(binaryTable, groupDesign, groupRule="any", discardNonGr
 
 	for(thisGroup in groups)  {
 		theseSamples <- groupDesign[groupDesign[,"groupName"]==thisGroup,"sampleName"]
-		sumVector <- rowSums(binaryTable[,theseSamples])
+		
+    sumVector <- ifelse(length(theseSamples) > 1, rowSums(binaryTable[,theseSamples]), binaryTable[,theseSamples])
 		
 		reducedDat[,thisGroup] <- switch(groupRule,	
 					all =  ifelse(sumVector == length(theseSamples) , 1, 0),
@@ -187,8 +188,9 @@ plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=
 
 	# draw the bargraph and add an axis
 	rect(seq(0,1,length.out=n.counts+1)[-(n.counts+1)],  bar.bottom , seq(0,1,length.out=n.counts+1)[-1], (counts/max.count) + bar.bottom , col="grey")
-	tickVector <- prettyTicks(range(counts), n.ticks=4,inc.zero=T)
-	tickPosVector <- (tickVector/max.count) + bar.bottom
+	#tickVector <- prettyTicks(range(counts), n.ticks=4,inc.zero=T)
+	tickVector <- pretty(0:max(counts))
+  tickPosVector <- (tickVector/max.count) + bar.bottom
 	axis(at=tickPosVector , side=2, labels =tickVector, las=2)
 
 }
