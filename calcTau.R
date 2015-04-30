@@ -9,23 +9,36 @@ testProfile3 <- rep(0,10)
 
 ## Tau from Yanai et al. (2005) Bioinformatics.
 tau <- function(profile)  {
-	(sum(1 - (profile/max(profile)))) / (length(profile) -1 )
-	
+  if(min(profile) == max(profile))  {
+    tau <- 0 
+  } else {
+    tau <- (sum(1 - (profile/max(profile)))) / (length(profile) -1 )
+  }
+  return(tau)
 } 
 
 inv.tau <- function(profile)  {
     profile <- ifelse(profile==0,  1e-22, profile)  # cannot use zeroes
-    (sum(1 - (min(profile)/profile))) / (length(profile) -1 )
-    
+    if(min(profile) == max(profile))  {
+      tau <- 0 
+    } else { 
+      tau <-  (sum(1 - (min(profile)/profile))) / (length(profile) -1 )
+    }
+    return(tau)
 }
 
 # takes a vector of grouping elements and first reduces the profile to a set of within-group summary stats using "method"
 group.tau <- function(profile, groups, method=mean, use.inv=FALSE) {
   sub.profile <- tapply(profile, as.factor(as.character(groups)), method)
-  if(use.inv) {
-    value <- inv.tau(sub.profile)
+  
+  if(min(profile) == max(profile))  {
+    value <- 0
   } else {
-    value <- tau(sub.profile)
+    if(use.inv) {
+      value <- inv.tau(sub.profile)
+    } else {
+      value <- tau(sub.profile)
+    }
   }
   return(value)
 }
