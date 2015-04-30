@@ -20,7 +20,7 @@ binarizeTable <- function(data, threshold=0, returnBoolean=FALSE)  {
 		#return.table <- apply(data, 2, FUN=function(x) ifelse(x > threshold, 1, 0))
 		return.table <- data
 		for(i in 1:ncol(data)) {
-			return.table[,i] <- data[,i] > threshold[i]
+			return.table[,i] <- ifelse(data[,i] > threshold[i], 1, 0)
 
 		}
 	}
@@ -54,7 +54,13 @@ reduceGroups <- function(binaryTable, groupDesign, groupRule="any", discardNonGr
 	for(thisGroup in groups)  {
 		theseSamples <- groupDesign[groupDesign[,"groupName"]==thisGroup,"sampleName"]
 		
-    sumVector <- ifelse(length(theseSamples) > 1, rowSums(binaryTable[,theseSamples]), binaryTable[,theseSamples])
+    if(length(theseSamples) > 1)  {
+      sumVector <- rowSums(binaryTable[,theseSamples])
+    } else {
+      sumVector <- binaryTable[,theseSamples]
+    }
+      
+     #ifelse(length(theseSamples) > 1, rowSums(binaryTable[,theseSamples]), binaryTable[,theseSamples])
 		
 		reducedDat[,thisGroup] <- switch(groupRule,	
 					all =  ifelse(sumVector == length(theseSamples) , 1, 0),
