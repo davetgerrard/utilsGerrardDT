@@ -4,9 +4,9 @@
 
 source('C:/Users/Dave/utilsGerrardDT/utility.R')
 
-segmentedHeatmap <- function(x,  groupList, group.labels=names(groupList), sample.labels = colnames(x), cex.ylabels=1, cex.xlabels=1)  {
-  old.par <- par()
-  par(mar=c(5, 10, 3,3))
+segmentedHeatmap <- function(x,  groupList, group.labels=names(groupList), sample.labels = colnames(x), cex.ylabels=1, cex.xlabels=1, add.grid=TRUE)  {
+  #old.par <- par()
+  #par(mar=c(5, 10, 3,3))
   full.index <- match(unlist(groupList), row.names(x))
   
   group.bounds <- as.integer(cumsum(lapply(groupList, length)))
@@ -20,7 +20,7 @@ segmentedHeatmap <- function(x,  groupList, group.labels=names(groupList), sampl
   #image(t(x[full.index,])                    )
   image(scale(t(x[full.index,])), axes=F, mar=c(10,7),col=colorRampPalette(c("white", "blue"))( 30 ))
   box()
-  grid(nx=ncol(x), ny=length(full.index), col="grey")
+  if(add.grid) grid(nx=ncol(x), ny=length(full.index), col="grey")
   
   par(xpd=T)
   segments(-1, y0=groupBreaks, x1=-.3, lwd=2, lty=1)
@@ -31,7 +31,7 @@ segmentedHeatmap <- function(x,  groupList, group.labels=names(groupList), sampl
   #}
   mtext(groupLabels, side=2, at=groupCentres, las =2, line=2, cex=cex.ylabels)
   mtext(sample.labels, side=1, at=seq(0, 1, length.out=length(sample.labels)), las=2, line=1, cex=cex.xlabels)
-  par(old.par)
+  par(xpd=F)
 }
 
 
