@@ -2,7 +2,7 @@
 
 
 
-source('C:/Users/Dave/utilsGerrardDT/utility.R')
+#source('C:/Users/Dave/utilsGerrardDT/utility.R')
 
 segmentedHeatmap <- function(x,  groupList, group.labels=names(groupList), sample.labels = colnames(x), cex.ylabels=1, cex.xlabels=1, add.grid=TRUE)  {
   #old.par <- par()
