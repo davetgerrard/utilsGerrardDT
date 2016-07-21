@@ -102,37 +102,88 @@ minRankFromMedian <- function(vector)  {
 	return(minRankVector)
 }
 
-runScoreGoTests <- function(GOdata,geneList,geneSelectionFun=topDiffGenes)  { #INFO: runs a suite of GO score tests over a topGOdata object and returns a result table
+runScoreGoTests <- function(GOdata,geneList,geneSelectionFun=topDiffGenes, 
+                            test.list=c("Wilcox", "elimWilcox", "WilcoxGreater", "elimWilcoxGreater", 
+                                        "WilcoxLesser", "elimWilcoxLesser", "KS", "elimKS", 
+                                        "WilcoxAbs", "elimWilcoxAbs", 
+                                        "WilcoxMedRank", "elimWilcoxMedRank"))  { #INFO: runs a suite of GO score tests over a topGOdata object and returns a result table
 		thisGOgraph <- GOdata@ontology
 	
+		
+		
+		
+		thisGoResults <- NULL
+		#thisGoResults <- merge(Wilcox,elimWilcox,by="goTerm")
+		
+		
+		
+	
+		
+		
+		
+    
 		####INFO: define test statistics and apply over all GO terms 
 		#INFO: resultWilcox = 2-sided wilcox test. Good for outliers in one direction
 		test.stat <- new("classicScore", testStatistic = GOWilcoxTest2Sided, name = "Wilcox tests") 
-		resultWilcox <- getSigGroups(GOdata, test.stat)
+		#if("Wilcox" %in% test.list)  {
+      resultWilcox <- getSigGroups(GOdata, test.stat)
+      Wilcox <- data.frame(Wilcox=score(resultWilcox ),goTerm=names(score(resultWilcox)))
+		thisGoResults <- Wilcox
+		#}
 		#INFO: resultElimWilcox = elim version of resultWilcox
 		test.stat <- new("elimScore", testStatistic = GOWilcoxTest2Sided, name = "Wilcox test", cutOff = elimCutOff)    #,alternative="less"
-		resultElimWilcox <- getSigGroups(GOdata, test.stat)
+		if("elimWilcox" %in% test.list) {
+      resultElimWilcox <- getSigGroups(GOdata, test.stat)
+      elimWilcox <- data.frame(elimWilcox=score(resultElimWilcox),goTerm=names(score(resultElimWilcox)))
+      thisGoResults <- merge(thisGoResults,elimWilcox,by="goTerm")
+		}
 
 		test.stat <- new("classicScore", testStatistic = GOWilcoxTestGreater, name = "Wilcox tests") 
-		resultWilcoxGreater <- getSigGroups(GOdata, test.stat)
+		if("WilcoxGreater" %in% test.list) {
+      resultWilcoxGreater <- getSigGroups(GOdata, test.stat)
+      WilcoxGreater <- data.frame(WilcoxGreater=score(resultWilcoxGreater ),goTerm=names(score(resultWilcoxGreater)))
+      thisGoResults <- merge(thisGoResults, WilcoxGreater,by="goTerm")
+		}
 		#INFO: resultElimWilcox = elim version of resultWilcox
 		test.stat <- new("elimScore", testStatistic = GOWilcoxTestGreater, name = "Wilcox test", cutOff = elimCutOff)    #,alternative="less"
-		resultElimWilcoxGreater <- getSigGroups(GOdata, test.stat)
+		if("elimWilcoxGreater" %in% test.list) {
+      resultElimWilcoxGreater <- getSigGroups(GOdata, test.stat)
+      elimWilcoxGreater <- data.frame(elimWilcoxGreater=score(resultElimWilcoxGreater),goTerm=names(score(resultElimWilcoxGreater)))
+      thisGoResults <- merge(thisGoResults, elimWilcoxGreater,by="goTerm")
+		}
 
 		test.stat <- new("classicScore", testStatistic = GOWilcoxTestLesser, name = "Wilcox tests") 
-		resultWilcoxLesser <- getSigGroups(GOdata, test.stat)
+		if("WilcoxLesser" %in% test.list)  {
+      resultWilcoxLesser <- getSigGroups(GOdata, test.stat)
+      WilcoxLesser <- data.frame(WilcoxLesser=score(resultWilcoxLesser ),goTerm=names(score(resultWilcoxLesser)))
+      thisGoResults <- merge(thisGoResults, WilcoxLesser,by="goTerm")
+		}
 		#INFO: resultElimWilcox = elim version of resultWilcox
 		test.stat <- new("elimScore", testStatistic = GOWilcoxTestLesser, name = "Wilcox test", cutOff = elimCutOff)    #,alternative="less"
-		resultElimWilcoxLesser <- getSigGroups(GOdata, test.stat)
+		if("elimWilcoxLesser" %in% test.list)  {
+      resultElimWilcoxLesser <- getSigGroups(GOdata, test.stat)
+      elimWilcoxLesser <- data.frame(elimWilcoxLesser=score(resultElimWilcoxLesser),goTerm=names(score(resultElimWilcoxLesser)))  
+      thisGoResults <- merge(thisGoResults, elimWilcoxLesser,by="goTerm")
+		}
+
+		
 
 		#resultElimWilcoxAdj <- resultElimWilcox 
 		#score(resultElimWilcoxAdj) <- qvalue(score(resultElimWilcox))$qvalue
 		#INFO: resultKS = Kolmogorov smirnov test: may be good for general distribution changes.
 		test.stat <- new("classicScore", testStatistic = GOKSTest, name = "KS tests")     # ,alternative="less"  
-		resultKS <- getSigGroups(GOdata, test.stat)
+		if("KS" %in% test.list) {
+      resultKS <- getSigGroups(GOdata, test.stat)
+      KS <- data.frame(KS=score(resultKS),goTerm=names(score(resultKS)))
+      thisGoResults <- merge(thisGoResults, KS ,by="goTerm")
+		}
 		#INFO: resultElimKS = elim version of resultKS
 		test.stat <- new("elimScore", testStatistic = GOKSTest, name = "KS test", cutOff = elimCutOff)    #,alternative="less"
-		resultElimKS <- getSigGroups(GOdata, test.stat)
+		if("elimKS" %in% test.list)  {
+      resultElimKS <- getSigGroups(GOdata, test.stat)
+      elimKS <- data.frame(elimKS=score(resultElimKS),goTerm=names(score(resultElimKS)))
+      thisGoResults <- merge(thisGoResults, elimKS ,by="goTerm")
+		}
 
 		#resultElimKSAdj <- resultElimKS
 		#score(resultElimKSAdj ) <- qvalue(score(resultElimKS))$qvalue
@@ -143,10 +194,18 @@ runScoreGoTests <- function(GOdata,geneList,geneSelectionFun=topDiffGenes)  { #I
 		GOdata <- updateGenes(GOdata,geneList2,topDiffGenes)
 		#INFO: resultWilcoxAbs = test for outliers in both directions simultaneously. Less power than wilcox if true difference is unidireectional.
 		test.stat <- new("classicScore", testStatistic = GOWilcoxTestGreater, name = "Wilcox tests") 
-		resultWilcoxAbs <- getSigGroups(GOdata, test.stat)
+		if("WilcoxAbs" %in% test.list)  {
+      resultWilcoxAbs <- getSigGroups(GOdata, test.stat)
+      absWilcox <- data.frame(absWilcox=score(resultWilcoxAbs),goTerm=names(score(resultWilcoxAbs)))
+      thisGoResults <- merge(thisGoResults, absWilcox ,by="goTerm")
+		}
 		#INFO: resultElimWilcoxAbs = elim version of resultElimWilcox
 		test.stat <- new("elimScore", testStatistic = GOWilcoxTestGreater, name = "Wilcox test", cutOff = elimCutOff)    #,alternative="less"
-		resultElimWilcoxAbs <- getSigGroups(GOdata, test.stat)
+		if("elimWilcoxAbs" %in% test.list) {
+      resultElimWilcoxAbs <- getSigGroups(GOdata, test.stat)
+      elimAbsWilcox <- data.frame(elimAbsWilcox=score(resultElimWilcoxAbs),goTerm=names(score(resultElimWilcoxAbs)))
+      thisGoResults <- merge(thisGoResults, elimAbsWilcox ,by="goTerm")
+		}
 
 
 		#INFO: change scores to ranks from edge for Greater than test  (first and last both rank 1, median value is ranked n/2)
@@ -155,45 +214,29 @@ runScoreGoTests <- function(GOdata,geneList,geneSelectionFun=topDiffGenes)  { #I
 		GOdata <- updateGenes(GOdata,geneList3,topDiffGenes)
 		#INFO: resultWilcoxMedRank = test for outliers in both directions simultaneously. Less power than wilcox if true difference is unidireectional. Different to resultWilcoxAbs if distribution is skewed.
 		test.stat <- new("classicScore", testStatistic = GOWilcoxTestLesser, name = "Wilcox tests") 
-		resultWilcoxMedRank <- getSigGroups(GOdata, test.stat)
+		if("WilcoxMedRank" %in% test.list) {
+      resultWilcoxMedRank <- getSigGroups(GOdata, test.stat)
+      medRankWilcox <- data.frame(medRankWilcox=score(resultWilcoxMedRank),goTerm=names(score(resultWilcoxMedRank)))
+      thisGoResults <- merge(thisGoResults, medRankWilcox, by="goTerm")
+		}
 		#INFO: resultElimWilcoxAbs = elim version of resultElimWilcox
 		test.stat <- new("elimScore", testStatistic = GOWilcoxTestLesser, name = "Wilcox test", cutOff = elimCutOff)    #,alternative="less"
-		resultElimWilcoxMedRank <- getSigGroups(GOdata, test.stat)		
+		if("elimWilcoxMedRank" %in% test.list)  {
+      resultElimWilcoxMedRank <- getSigGroups(GOdata, test.stat)		
+      elimMedRankWilcox <- data.frame(elimMedRankWilcox=score(resultElimWilcoxMedRank),goTerm=names(score(resultElimWilcoxMedRank)))
+      thisGoResults <- merge(thisGoResults, elimMedRankWilcox, by="goTerm")  
+		}
 
-
-
+			
+		
 		#resultElimWilcoxAbsAdj <- resultElimWilcoxAbs 
 		#score(resultElimWilcoxAbsAdj ) <- qvalue(score(resultElimWilcoxAbs ))$qvalue
 
 
 		#INFO: collect and bind all the results together. 
 		# This could be done with a function available in topGO but I wanted extra columns and control.
-		Wilcox <- data.frame(Wilcox=score(resultWilcox ),goTerm=names(score(resultWilcox)))
-		elimWilcox <- data.frame(elimWilcox=score(resultElimWilcox),goTerm=names(score(resultElimWilcox)))
-		WilcoxGreater <- data.frame(WilcoxGreater=score(resultWilcoxGreater ),goTerm=names(score(resultWilcoxGreater)))
-		elimWilcoxGreater <- data.frame(elimWilcoxGreater=score(resultElimWilcoxGreater),goTerm=names(score(resultElimWilcoxGreater)))
-		WilcoxLesser <- data.frame(WilcoxLesser=score(resultWilcoxLesser ),goTerm=names(score(resultWilcoxLesser)))
-		elimWilcoxLesser <- data.frame(elimWilcoxLesser=score(resultElimWilcoxLesser),goTerm=names(score(resultElimWilcoxLesser)))		
-		KS <- data.frame(KS=score(resultKS),goTerm=names(score(resultKS)))
-		elimKS <- data.frame(elimKS=score(resultElimKS),goTerm=names(score(resultElimKS)))
-		absWilcox <- data.frame(absWilcox=score(resultWilcoxAbs),goTerm=names(score(resultWilcoxAbs)))
-		elimAbsWilcox <- data.frame(elimAbsWilcox=score(resultElimWilcoxAbs),goTerm=names(score(resultElimWilcoxAbs)))
-		medRankWilcox <- data.frame(medRankWilcox=score(resultWilcoxMedRank),goTerm=names(score(resultWilcoxMedRank)))
-		elimMedRankWilcox <- data.frame(elimMedRankWilcox=score(resultElimWilcoxMedRank),goTerm=names(score(resultElimWilcoxMedRank)))
-
-
-		thisGoResults <- NULL
-		thisGoResults <- merge(Wilcox,elimWilcox,by="goTerm")
-		thisGoResults <- merge(thisGoResults, WilcoxGreater,by="goTerm")
-		thisGoResults <- merge(thisGoResults, elimWilcoxGreater,by="goTerm")
-		thisGoResults <- merge(thisGoResults, WilcoxLesser,by="goTerm")
-		thisGoResults <- merge(thisGoResults, elimWilcoxLesser,by="goTerm")
-		thisGoResults <- merge(thisGoResults, KS ,by="goTerm")
-		thisGoResults <- merge(thisGoResults, elimKS ,by="goTerm")
-		thisGoResults <- merge(thisGoResults, absWilcox ,by="goTerm")
-		thisGoResults <- merge(thisGoResults, elimAbsWilcox ,by="goTerm")
-		thisGoResults <- merge(thisGoResults, medRankWilcox, by="goTerm")
-		thisGoResults <- merge(thisGoResults, elimMedRankWilcox, by="goTerm")
+		
+		
 		thisGoResults$ontology <- thisGOgraph
 		thisGoResults$description <-  as.character(topGO:::.getTermsDefinition(as.character(thisGoResults$goTerm), ontology(GOdata),numChar=200))
 

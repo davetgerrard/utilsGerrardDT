@@ -8,7 +8,7 @@
 
 # rowBar.min  0, NULL
 
-heatmapBarplot <- function(mat, rowBar.min=0, colBar.min=0, grid.prop.x=.7, grid.prop.y=grid.prop.x, spacer=.05, 
+heatmapBarplot <- function(mat, rowBar.min=0, colBar.min=0, grid.prop.x=.6, grid.prop.y=grid.prop.x, spacer=.05, 
                            useLog10=FALSE, row.labels=dimnames(mat)[[1]],  col.labels=dimnames(mat)[[2]], 
                            xlab="", ylab="",
                            r.vals = apply(mat, 1, sum), c.vals = apply(mat, 2, sum))  {
@@ -61,7 +61,7 @@ heatmapBarplot <- function(mat, rowBar.min=0, colBar.min=0, grid.prop.x=.7, grid
   # row summarising bar plot
 
   r.bar.min.x <- grid.max.x + spacer
-  r.bar.max.x <- 1.0
+  r.bar.max.x <- .95
   
   #r.bar.min.y <- grid.min.y 
   #r.bar.max.y <- grid.max.y
@@ -87,7 +87,7 @@ heatmapBarplot <- function(mat, rowBar.min=0, colBar.min=0, grid.prop.x=.7, grid
   # column summarising bar plot
   
   c.bar.min.y <- grid.max.y + spacer
-  c.bar.max.y <- 1.0
+  c.bar.max.y <- .95
   
   #c.bar.min.x <- grid.min.x 
   #c.bar.max.x <- grid.max.x
