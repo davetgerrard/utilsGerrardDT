@@ -35,11 +35,11 @@ segmentedHeatmap <- function(x,  groupList, group.labels=names(groupList), sampl
 }
 
 
-myData <- as.matrix(data.frame(time.1 = c(rep(3, 14), rep(0, 12)), 
+#myData <- as.matrix(data.frame(time.1 = c(rep(3, 14), rep(0, 12)), 
                      time.2= c(rep(2, 18), rep(1, 8)), time.3=c(rep(1, 10), rep(3, 16))))
-row.names(myData) <- LETTERS
+#row.names(myData) <- LETTERS
 
-groups <- list(A= LETTERS[1:8], B=LETTERS[7:18], C=LETTERS[14:24])
-group.labels <- list(A="a long name for the first group", B="a long name for the second group", C=" a shorter name")                 
+#groups <- list(A= LETTERS[1:8], B=LETTERS[7:18], C=LETTERS[14:24])
+#group.labels <- list(A="a long name for the first group", B="a long name for the second group", C=" a shorter name")                 
 
-segmentedHeatmap(x=myData, groupList=groups, group.labels=group.labels)
+#segmentedHeatmap(x=myData, groupList=groups, group.labels=group.labels)
