@@ -1,0 +1,10 @@
+Package: utilsGerrardDT
+Title: What the Package Does (one line, title case)
+Version: 0.0.1
+Authors@R: person("Dave", "Gerrard", email = "davetgerrard@gmail.com", role = c("aut", "cre"))
+Description: Utility R functions by Dave T Gerrard
+Depends: R (>= 3.1.1)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+
