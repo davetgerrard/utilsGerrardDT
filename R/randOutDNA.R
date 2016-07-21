@@ -7,5 +7,5 @@ randOutDNA <- function(n, stringLen=50,  dna=c("A", "C", "G", "T"))  {
  }
 }
 
-randOutDNA(10)
-randOutDNA(10000)
+#randOutDNA(10)
+#randOutDNA(10000)

@@ -42,32 +42,32 @@ region.distance <- function(bed.data, method="midpoint")  {
 # should the main function have to calculate scores? or 
 # can save a lot of compute by only calculating distance for valid groups (eg. within chromosome). 
 
-
-### SET UP TEST DATA
-
-t.r <- data.frame(chr=c("chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr2"),
-                  start=c(100, 200, 300, 400, 500, 600, 700, 800),
-                  end=c(150, 250, 350, 450, 550, 650, 750, 850),
-                  strand=c('+', '+', '-', '+', '-', '+', '+', '+') )
-t.r$name <- paste(t.r$chr,"-",  t.r$start, "_" ,t.r$end, sep="")
-nrow(t.r)
-
-pattern.1 <- c(50, 100, 10, 0, 200, 50)
-names(pattern.1) <- paste("sample", 1:6, sep=".")
-pattern.2 <- pattern.1 + 1:6     # similar array
-pattern.3 <- pattern.1 + (1:6)*10     # 
-
-# need to rbind 8 patterns including some very similar ones.
-
-t.s.data <- as.data.frame(rbind(pattern.1, pattern.2, pattern.3, rev(pattern.1), sort(pattern.1), rev(pattern.3), sort(pattern.3) , rev(pattern.2) ), row.names=t.r$name)
-
-cor(t.s.data)
-
-
-
-#### RUN THE CHAINING
-
-r.chains <- chain.regions(t.r, t.s.data)
+# 
+# ### SET UP TEST DATA
+# 
+# t.r <- data.frame(chr=c("chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr1", "chr2"),
+#                   start=c(100, 200, 300, 400, 500, 600, 700, 800),
+#                   end=c(150, 250, 350, 450, 550, 650, 750, 850),
+#                   strand=c('+', '+', '-', '+', '-', '+', '+', '+') )
+# t.r$name <- paste(t.r$chr,"-",  t.r$start, "_" ,t.r$end, sep="")
+# nrow(t.r)
+# 
+# pattern.1 <- c(50, 100, 10, 0, 200, 50)
+# names(pattern.1) <- paste("sample", 1:6, sep=".")
+# pattern.2 <- pattern.1 + 1:6     # similar array
+# pattern.3 <- pattern.1 + (1:6)*10     # 
+# 
+# # need to rbind 8 patterns including some very similar ones.
+# 
+# t.s.data <- as.data.frame(rbind(pattern.1, pattern.2, pattern.3, rev(pattern.1), sort(pattern.1), rev(pattern.3), sort(pattern.3) , rev(pattern.2) ), row.names=t.r$name)
+# 
+# cor(t.s.data)
+# 
+# 
+# 
+# #### RUN THE CHAINING
+# 
+# r.chains <- chain.regions(t.r, t.s.data)
 
 
 
