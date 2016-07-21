@@ -20,4 +20,4 @@ addStats.df <- function(x, columns=colnames(x), stats=c("min", "max", "sd", "tau
   return(x)
 }
   
-c(min, max, sd, tau)
+#c(min, max, sd, tau)
