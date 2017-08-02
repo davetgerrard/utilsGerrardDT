@@ -7,6 +7,8 @@
 analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10)  {
   stopifnot(class(x) == "GRanges")
   
+  formatBig <- function(x) format(x,big.mark=",",scientific=FALSE, trim=TRUE)  # for repeated use on large numbers.
+  
   allChromNames <- seqnames(seqinfo(x))
   chrom.canonical <- grep("_", allChromNames, invert=TRUE, value=TRUE)
   chrom.canonical <- chrom.canonical[order(seqlengths(x)[chrom.canonical])]
@@ -15,22 +17,22 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10)  {
   
   x.canonical <- x[seqnames(x) %in% chrom.canonical]
   #seqinfo(x.canonical) <- seqinfo(x)[chrom.canonical]
-  seqlevels(x.canonical, force=TRUE) <- chrom.canonical   # will throw out any data on noncanonical chroms.
+  seqlevels(x.canonical, pruning.mode="coarse") <- chrom.canonical   # will throw out any data on noncanonical chroms.
   genomeSize.canonical <- sum(as.numeric(seqlengths(x.canonical)))
   
   ### Drop all unused seqlevels:  - could be useful later..
   #seqlevels(gr) <- seqlevelsInUse(gr)
   
   #print(seqinfo(x))
-  print(paste("Object with", length(x), "regions from genome", unique(genome(x))))
-  print(paste("The full genome has length", genomeSize, "over", length(allChromNames), "sequences"))  
-  print(paste("The canonical genome has length", genomeSize.canonical, "over", length(chrom.canonical), "sequences")) 
+  print(paste("Object with", formatBig(length(x)), "regions from genome", unique(genome(x))))
+  print(paste("The full genome has length", formatBig(genomeSize), "over", length(allChromNames), "sequences"))  
+  print(paste("The canonical genome has length", formatBig(genomeSize.canonical), "over", length(chrom.canonical), "sequences")) 
   
   n.chroms.used <- length(seqlevelsInUse(x.canonical))
   choms.notUsed <- setdiff(chrom.canonical,seqlevelsInUse(x.canonical))
   n.features <- length(x.canonical)
     
-  print(paste("Your track contains", n.features, "features over", n.chroms.used, "sequences"))
+  print(paste("Your track contains", formatBig(n.features), "features over", n.chroms.used, "sequences"))
   if(length(choms.notUsed) > 0) {
     print(paste("The following chromosomes have zero features:-", paste(choms.notUsed, collapse=",")))
   } else {
@@ -42,10 +44,10 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10)  {
   n.features.reduced <- length(x.reduced)
   coverage.reduced <- sum(width(x.reduced))
   
-  print(paste("The features cover", coverage.canonical, "bases or ", round((coverage.canonical/genomeSize.canonical)*100, digits=3)  , "% of the genome"))
+  print(paste("The features cover", formatBig(coverage.canonical), "bases or ", round((coverage.canonical/genomeSize.canonical)*100, digits=3)  , "% of the genome"))
   if(n.features.reduced < n.features) {
     print(paste("Some features overlap each other."))
-    print(paste("The intersect of features cover", coverage.reduced, "bases or ", round((coverage.reduced/genomeSize.canonical)*100, digits=3)  , "% of the genome"))
+    print(paste("The intersect of features cover", formatBig(coverage.reduced), "bases or ", round((coverage.reduced/genomeSize.canonical)*100, digits=3)  , "% of the genome"))
     x.use <- x.reduced
   } else {
     print(paste("No features overlap each other"))
@@ -58,8 +60,8 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10)  {
   max.count.chrom <- names(chrom.counts)[which.max(chrom.counts)]
   min.count <- min(chrom.counts)
   min.count.chrom <- names(chrom.counts)[which.min(chrom.counts)]
-  print(paste("The sequence with most features is", max.count.chrom, "with" , max.count))
-  print(paste("The sequence with fewest features is", min.count.chrom, "with" , min.count))
+  print(paste("The sequence with most features is", max.count.chrom, "with" , formatBig(max.count)))
+  print(paste("The sequence with fewest features is", min.count.chrom, "with" , formatBig(min.count)))
   
   # calc count per kilobase
   cpkb <- (chrom.counts[chrom.canonical] / seqlengths(x.canonical)) * 1000000
@@ -93,7 +95,7 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10)  {
   
   # do some stats on distribution of lengths. 
   # Are all features from the same distribution?
-  print(paste("Mean length:", x.mean))
+  print(paste("Mean length:", round(x.mean, digits=3)))
   print(paste("Trimmed mean length:", x.meanTrimmed))
   print(paste("Standard deviation:", round(x.sd, digits=3)))
   print(paste("Coefficient of variation:", round(x.CoV, digits=3)))
