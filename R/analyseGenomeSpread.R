@@ -10,6 +10,8 @@
 
 analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.table=FALSE, fileName=NULL)  {
   stopifnot(class(x) == "GRanges")
+  op <- options(width=300)    # to keep rows of stats table together while using sink.
+  on.exit(options(op))
   if(!is.null(fileName)) {
     sink(fileName)
     #sink() 
@@ -136,13 +138,16 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.
       } else {
         gapsVec=NA 
       }
-      
+      modalWidth=Mode(width(chromFeatures))
+      modalGap=Mode(gapsVec)
       thisRow <- data.frame(chr=thisChrom, n=length(x[seqnames(x)==thisChrom]), 
                             meanWidth=mean(width(chromFeatures)),
                             minWidth=min(width(chromFeatures)),
                             maxWidth=max(width(chromFeatures)),
+                            modalWidth=modalWidth, modalWidthFreq=sum(width(chromFeatures) == modalWidth),
                             meanGap=mean(gapsVec), medianGap=median(gapsVec),
-                            modalGap=Mode(gapsVec), minGap=min(gapsVec), maxGap=max(gapsVec))
+                            modalGap=modalGap, modalGapFreq=sum(gapsVec == modalGap),
+                            minGap=min(gapsVec), maxGap=max(gapsVec))
       outTable <- rbind(outTable, thisRow)
     }
   #}
