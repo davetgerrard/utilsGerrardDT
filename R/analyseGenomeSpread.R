@@ -3,17 +3,35 @@
 
 # given a GRanges object, measure the features and make statements about spread around the genome.
 # ideally, the GRanges object should have seqlengths info.
+# TODO get this to export a table
+# TDOO including clustering metric
+#     Could do this using distribution of distances between sequential features (works with overlapping sets)
+#     OR could do using reflect() and then size distribution of what are the gaps (but what about overlapping features?)
 
-analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10)  {
+analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.table=FALSE, fileName=NULL)  {
   stopifnot(class(x) == "GRanges")
-  
+  if(!is.null(fileName)) {
+    sink(fileName)
+    #sink() 
+  }
   formatBig <- function(x) format(x,big.mark=",",scientific=FALSE, trim=TRUE)  # for repeated use on large numbers.
+  Mode <- function(x) {   # https://stackoverflow.com/a/8189441/1129734
+    ux <- unique(x)
+    ux[which.max(tabulate(match(x, ux)))]
+  }
+  
   
   allChromNames <- seqnames(seqinfo(x))
   chrom.canonical <- grep("_", allChromNames, invert=TRUE, value=TRUE)
   chrom.canonical <- chrom.canonical[order(seqlengths(x)[chrom.canonical])]
    # order by size
   genomeSize <- sum(as.numeric(seqlengths(x)))
+  
+  if(is.na(genomeSize))  {
+    print("Genome size information is missing or incomplete. Only limited results will be shown. To fix this, set the seqinfo() of your GRanges object") 
+  }
+  
+  outTable <- data.frame()
   
   x.canonical <- x[seqnames(x) %in% chrom.canonical]
   #seqinfo(x.canonical) <- seqinfo(x)[chrom.canonical]
@@ -88,6 +106,8 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10)  {
   
   print(paste("Correlation between coverage and chromosome lengths:" , round(cor(seqlengths(x.use)[chrom.canonical],chrom.sums.vec[chrom.canonical], use="complete.obs"), digits=3 )))
   
+  x.max <- max(width(x.use))
+  x.min <- min(width(x.use))
   x.mean <- mean(width(x.use))
   x.meanTrimmed <- mean(width(x.use), trim=.1)
   x.sd <- sd(width(x.use))
@@ -95,14 +115,47 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10)  {
   
   # do some stats on distribution of lengths. 
   # Are all features from the same distribution?
+  print(paste("Minimumm length:", x.min))
+  print(paste("Maximum length:", x.max))
   print(paste("Mean length:", round(x.mean, digits=3)))
   print(paste("Trimmed mean length:", x.meanTrimmed))
   print(paste("Standard deviation:", round(x.sd, digits=3)))
   print(paste("Coefficient of variation:", round(x.CoV, digits=3)))
-  print(paste())
+  #print(paste())
   # What about clumping within chromosomes?  
   
-  print(paste())
+  #if(return.table)  {
+    for(thisChrom in chrom.canonical)  {
+      #starts <- NA
+      chromFeatures <-x[seqnames(x)==thisChrom]
+      if(length(chromFeatures) > 1) {
+        starts <- sort(start(chromFeatures))
+        gapsVec <- starts[2:length(starts)] -starts[1:(length(starts)-1)]
+        # sometimes there'll be one or two very large gaps for centromeres and sequencing gaps..
+        
+      } else {
+        gapsVec=NA 
+      }
+      
+      thisRow <- data.frame(chr=thisChrom, n=length(x[seqnames(x)==thisChrom]), 
+                            meanWidth=mean(width(chromFeatures)),
+                            minWidth=min(width(chromFeatures)),
+                            maxWidth=max(width(chromFeatures)),
+                            meanGap=mean(gapsVec), medianGap=median(gapsVec),
+                            modalGap=Mode(gapsVec), minGap=min(gapsVec), maxGap=max(gapsVec))
+      outTable <- rbind(outTable, thisRow)
+    }
+  #}
+  
+  if(return.table) print(outTable)
+  print(paste("Done!"))
+  if(!is.null(fileName)) {
+    #sink(fileName)
+    sink() 
+    print(paste("output directed to ", fileName))
+  }
+  
+  if(return.table)  return(outTable)
 }
 
 
