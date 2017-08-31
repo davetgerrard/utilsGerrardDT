@@ -148,7 +148,10 @@ plotEuler.old <- function(binaryGrid, counts, labels)  {
 # binaryGrid	a data.frame containing only 0/1. One column per sample. 
 # counts		vector of counts. Must match number of rows in binary grid (and in same order)
 # labels
-plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=0.1, bar.prop=0.5, dropEmptySet=TRUE, dropFullSet=FALSE, dropSets='', fg.colour="darkolivegreen4",bg.colour="grey")  {
+plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=0.1, bar.prop=0.5, 
+                      dropEmptySet=TRUE, dropFullSet=FALSE, dropSets='', 
+                      fg.colour="darkolivegreen4",bg.colour="grey",
+                      setFgColours=NULL, setBgColours=NULL)  {
 
 	n.samples <- ncol(binaryGrid)
 
@@ -181,9 +184,14 @@ plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=
 	grid.y1 <- rep(seq(0,grid.height,length.out=n.samples+1)[-(n.samples + 1)] , each=n.counts)
 	grid.y2 <- rep(seq(0,grid.height,length.out=n.samples+1)[-1] ,each= n.counts)
 
-	colVector <- unlist(binaryGrid)   # concatenation by colums - to be used as rows from bottom, left to right.
-	colVector <- ifelse(colVector == 1,fg.colour, bg.colour )
+	#colVector <- unlist(binaryGrid)   # concatenation by colums - to be used as rows from bottom, left to right.
+	fg.mask <- unlist(binaryGrid) == 1
+	colVector <- ifelse(fg.mask,fg.colour, bg.colour )
 
+	sampleVector <- rep(colnames(binaryGrid), each=n.counts)
+	if(!is.null(setFgColours))  colVector <- ifelse(fg.mask, setFgColours[sampleVector], colVector)
+	if(!is.null(setBgColours))  colVector <- ifelse(fg.mask, colVector, setBgColours[sampleVector])
+  
 	# begin plotting
 	plot.new()
 	plot.window(xlim=c(0,1),ylim=c(0,1+bar.bottom))

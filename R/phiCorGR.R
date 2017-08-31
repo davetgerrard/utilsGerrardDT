@@ -21,9 +21,9 @@ phiCorGR <- function(x, y, genomeSize=NULL, useCanonical=TRUE, ignore.strand=TRU
   
   if(is.null(genomeSize)) genomeSize <-  sum(as.numeric(seqlengths(x)))
   
-  intersectTotal <- sum(as.numeric(width(intersect(x,y, ignore.strand=ignore.strand))))
-  xOnlyTotal <- sum(as.numeric(width(setdiff(x,y, ignore.strand=ignore.strand))))
-  yOnlyTotal <- sum(as.numeric(width(setdiff(y,x, ignore.strand=ignore.strand))))
+  intersectTotal <- sum(as.numeric(width(GenomicRanges::intersect(x,y, ignore.strand=ignore.strand))))
+  xOnlyTotal <- sum(as.numeric(width(GenomicRanges::setdiff(x,y, ignore.strand=ignore.strand))))
+  yOnlyTotal <- sum(as.numeric(width(GenomicRanges::setdiff(y,x, ignore.strand=ignore.strand))))
   neitherTotal <- genomeSize - (intersectTotal + xOnlyTotal + yOnlyTotal)
   tablePhi <- matrix(c(intersectTotal, xOnlyTotal, yOnlyTotal, neitherTotal), nrow=2, ncol=2, dimnames=list(x=c(TRUE, FALSE), y=c(TRUE,FALSE)))
   if(verbose) print(tablePhi)
