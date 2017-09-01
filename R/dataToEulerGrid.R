@@ -148,13 +148,25 @@ plotEuler.old <- function(binaryGrid, counts, labels)  {
 # binaryGrid	a data.frame containing only 0/1. One column per sample. 
 # counts		vector of counts. Must match number of rows in binary grid (and in same order)
 # labels
+# y_buffer
+# bar.prop
+# dropEmptySet
+# dropFullSet
+# dropSets
+# fg.colour
+# bg.colour
+# setFgColours
+# setBgColours
 plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=0.1, bar.prop=0.5, 
+                      setBarData=NULL , setBarProp=.15, setBarTransform=c("none", "log10", "log2"), 
+                      x_buffer=.02, setBarColours= "grey",
+                      countBarColours ="grey",
                       dropEmptySet=TRUE, dropFullSet=FALSE, dropSets='', 
                       fg.colour="darkolivegreen4",bg.colour="grey",
                       setFgColours=NULL, setBgColours=NULL)  {
 
 	n.samples <- ncol(binaryGrid)
-
+	setBarProp <- setBarProp - (x_buffer/1)  # adjust the proportion of area used by the side bar plot to account for the buffer
 	#rownames(binaryGrid) <- apply(binaryGrid)     # should already be binary chain matching the row if user used scoreCardinalities()
 
 	# allow removal of certain sets from the table of counts (e.g. empty set , full set)
@@ -174,13 +186,17 @@ plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=
 	counts <- counts[keepSetIndex]
 	n.counts <- length(counts)
 	
+	gridLeft <- 0
+	gridRight <- ifelse(is.null(setBarData),1, 1- (setBarProp + x_buffer))
 	grid.height <- 2 - (bar.prop * 2)
+	gridBottom <- 0
 	bar.bottom <- grid.height + y_buffer
+	setBarLeft <- gridRight + x_buffer
 	max.count <- max(counts)
 
 	# all rects in grid, specified by rows from bottom, moving left to right
-	grid.x1 <- rep(seq(0,1,length.out=n.counts+1)[-(n.counts + 1)] , n.samples)
-	grid.x2 <- rep(seq(0,1,length.out=n.counts+1)[-1] , n.samples)
+	grid.x1 <- rep(seq(gridLeft,gridRight,length.out=n.counts+1)[-(n.counts + 1)] , n.samples)
+	grid.x2 <- rep(seq(gridLeft,gridRight,length.out=n.counts+1)[-1] , n.samples)
 	grid.y1 <- rep(seq(0,grid.height,length.out=n.samples+1)[-(n.samples + 1)] , each=n.counts)
 	grid.y2 <- rep(seq(0,grid.height,length.out=n.samples+1)[-1] ,each= n.counts)
 
@@ -201,12 +217,31 @@ plotEuler <- function(binaryGrid, counts, labels=colnames(binaryGrid), y_buffer=
 	mtext(labels, side=2, at=labelPosVector, las=2)
 
 	# draw the bargraph and add an axis
-	rect(seq(0,1,length.out=n.counts+1)[-(n.counts+1)],  bar.bottom , seq(0,1,length.out=n.counts+1)[-1], (counts/max.count) + bar.bottom , col="grey")
+	rect(seq(gridLeft,gridRight,length.out=n.counts+1)[-(n.counts+1)],  bar.bottom , seq(gridLeft,gridRight,length.out=n.counts+1)[-1], (counts/max.count) + bar.bottom , col="grey")
 	#tickVector <- prettyTicks(range(counts), n.ticks=4,inc.zero=T)
-	tickVector <- pretty(0:max(counts))
+	tickVector <- pretty(0:max.count)
   tickPosVector <- (tickVector/max.count) + bar.bottom
-	axis(at=tickPosVector , side=2, labels =tickVector, las=2)
+	axis(at=tickPosVector , side=2, labels =tickVector, las=2, line=1)
 
+	# optional: draw frequency barplot
+	if(!is.null(setBarData)) {
+	  stopifnot(n.samples == length(setBarData))
+	  maxSetData <-max(setBarData)
+	  rect(setBarLeft, seq(gridBottom,grid.height,length.out=n.samples+1)[-(n.samples+1)],  ((setBarData/maxSetData)*setBarProp) + setBarLeft ,   seq(gridBottom,grid.height,length.out=n.samples+1)[-1], col=setBarColours)
+	  tickVector <- pretty(0:maxSetData)
+	  tickPosVector <- ((tickVector/maxSetData)*setBarProp) + setBarLeft
+	  axis(at=tickPosVector , side=1, labels =tickVector, las=1, line=1)
+	  
+	  #print(paste("gridBottom", gridBottom))
+	  ##print(paste("grid.height", grid.height))
+	  #print(paste("gridRight", gridRight))
+	  #print(paste("maxSetData", maxSetData))
+	  #print(paste("setBarLeft", setBarLeft))
+	  #print(paste("setBarProp", setBarProp))
+	  #print(tickVector)
+	  
+	}
+	
 }
 
 
