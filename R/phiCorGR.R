@@ -2,11 +2,22 @@
 
 # phi correlation from two genomic ranges objects
 # requires seqinfo for whole genome or genome size
+# AB  Both Groups
+# A   A , not B
+# B   B, not A
+# C   neither A nor B
+calcPhiCoef <- function(AB, A, B, C) {
+  return(( AB * C - A*B )   / sqrt((AB+A)*(B+C)*(AB+B)*(A+C)))
+}
+
+#calcPhiCoef(1,0,0,1)   #1
+#calcPhiCoef(0,1,1,0)  #-1
+
 # requires vcd package for assocstats
 # requires GenomicRanges
 phiCorGR <- function(x, y, genomeSize=NULL, useCanonical=TRUE, ignore.strand=TRUE,
                      verbose=FALSE)  {
-  require(vcd)
+  # require(vcd)   # removed because phi coeff is absolute value and I need sign
   require(GenomicRanges)
   
   # test we have what we need
@@ -27,8 +38,8 @@ phiCorGR <- function(x, y, genomeSize=NULL, useCanonical=TRUE, ignore.strand=TRU
   neitherTotal <- genomeSize - (intersectTotal + xOnlyTotal + yOnlyTotal)
   tablePhi <- matrix(c(intersectTotal, xOnlyTotal, yOnlyTotal, neitherTotal), nrow=2, ncol=2, dimnames=list(x=c(TRUE, FALSE), y=c(TRUE,FALSE)))
   if(verbose) print(tablePhi)
-  return(assocstats(tablePhi)$phi)
-
+  #return(assocstats(tablePhi)$phi)
+  return(calcPhiCoef(AB=intersectTotal, A=xOnlyTotal, B=yOnlyTotal, C=neitherTotal))
 }
 
 #library(BSgenome.Hsapiens.UCSC.hg38)
@@ -37,3 +48,6 @@ phiCorGR <- function(x, y, genomeSize=NULL, useCanonical=TRUE, ignore.strand=TRU
 
 #phiCorGR(x.GR, y.GR )
 #phiCorGR(x.GR, x.GR )  # should be 1
+
+#calcPhiCoef(1,0,0,1)   #1
+#calcPhiCoef(0,1,1,0)  #-1
