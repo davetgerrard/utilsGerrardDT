@@ -138,15 +138,13 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.
       } else {
         gapsVec=NA 
       }
-      modalWidth=Mode(width(chromFeatures))
-      modalGap=Mode(gapsVec)
+      #modalWidth=Mode(width(chromFeatures))
+      #modalGap=Mode(gapsVec)
       thisRow <- data.frame(chr=thisChrom, n=length(x[seqnames(x)==thisChrom]), 
                             meanWidth=mean(width(chromFeatures)),
                             minWidth=min(width(chromFeatures)),
                             maxWidth=max(width(chromFeatures)),
-                            modalWidth=modalWidth, modalWidthFreq=sum(width(chromFeatures) == modalWidth),
                             meanGap=mean(gapsVec), medianGap=median(gapsVec),
-                            modalGap=modalGap, modalGapFreq=sum(gapsVec == modalGap),
                             minGap=min(gapsVec), maxGap=max(gapsVec))
       outTable <- rbind(outTable, thisRow)
     }
