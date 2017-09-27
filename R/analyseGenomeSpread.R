@@ -35,7 +35,8 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.
   
   outTable <- data.frame()
   
-  x.canonical <- x[seqnames(x) %in% chrom.canonical]
+  #x.canonical <- x[as.vector(seqnames(x)) %in% chrom.canonical]
+  x.canonical <- x
   #seqinfo(x.canonical) <- seqinfo(x)[chrom.canonical]
   seqlevels(x.canonical, pruning.mode="coarse") <- chrom.canonical   # will throw out any data on noncanonical chroms.
   genomeSize.canonical <- sum(as.numeric(seqlengths(x.canonical)))
