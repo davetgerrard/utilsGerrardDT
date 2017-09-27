@@ -7,10 +7,6 @@
 # B   B, not A
 # C   neither A nor B
 calcPhiCoef <- function(AB, A, B, C) {
-  AB<-as.numeric(AB)
-  A<-as.numeric(A)
-  B<-as.numeric(B)
-  C<-as.numeric(C)
   return(( AB * C - A*B )   / sqrt((AB+A)*(B+C)*(AB+B)*(A+C)))
 }
 
