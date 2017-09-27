@@ -8,7 +8,9 @@
 #     Could do this using distribution of distances between sequential features (works with overlapping sets)
 #     OR could do using reflect() and then size distribution of what are the gaps (but what about overlapping features?)
 
-analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.table=FALSE, fileName=NULL)  {
+analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.table=FALSE, fileName=NULL, runTestBinSizes=c(1000, 10000, 100000, 1000000))  {
+  
+  stopifnot(require(GenomicRanges))
   stopifnot(class(x) == "GRanges")
   op <- options(width=300)    # to keep rows of stats table together while using sink.
   on.exit(options(op))
@@ -22,7 +24,7 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.
     ux[which.max(tabulate(match(x, ux)))]
   }
   
-  
+  print("Genome spread analysis. analyseGenomeSpread.GR() from https://github.com/davetgerrard/utilsGerrardDT  ")
   allChromNames <- seqnames(seqinfo(x))
   chrom.canonical <- grep("_", allChromNames, invert=TRUE, value=TRUE)
   chrom.canonical <- chrom.canonical[order(seqlengths(x)[chrom.canonical])]
@@ -127,6 +129,25 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.
   #print(paste())
   # What about clumping within chromosomes?  
   
+  if(is.numeric(runTestBinSizes)) {  # use run.test at different resolutions to test for spatial association
+    if(require(randtests) & require(GenomicRanges)) {
+      x_midpoints.GR <- GRanges(seqnames(x.canonical), IRanges(start=end(x.canonical) - floor((end(x.canonical) - start(x.canonical))/2), width=1))
+      
+      for(thisBinSize in runTestBinSizes) {
+        genome.bins <- tileGenome(seqlengths(x.canonical), tilewidth = thisBinSize, cut.last.tile.in.chrom = TRUE)
+        binCounts <- countOverlaps(genome.bins, x_midpoints.GR)
+        runTestResult <-  runs.test(binCounts, threshold=median(binCounts) +.1)  # use median +0.1 for threshold as often the median value is zero.
+        print(paste("Runs test using bins of width", thisBinSize, ":", format.pval(runTestResult$p.value, digits=3), "suggests", ifelse(runTestResult$p.value <=0.05, "non-randomness", "randomness")))
+      }
+    } else {
+      print("No run tests peformed, please install package randstats")
+    }
+  
+  
+  }
+  
+  
+  
   #if(return.table)  {
     for(thisChrom in chrom.canonical)  {
       #starts <- NA
@@ -153,8 +174,11 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.
     }
   #}
   
-  if(return.table) print(outTable)
-  print(paste("Done!"))
+  if(return.table) {
+    print("Chromosome level stats:-")
+    print(outTable)
+  }
+  print(paste("Finished analyseGenomeSpread.GR() ! "))
   if(!is.null(fileName)) {
     #sink(fileName)
     sink() 
