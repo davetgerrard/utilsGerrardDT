@@ -13,7 +13,7 @@ calcPhiCoef <- function(AB, A, B, C) {
 #calcPhiCoef(1,0,0,1)   #1
 #calcPhiCoef(0,1,1,0)  #-1
 
-# requires vcd package for assocstats
+# no longer requires vcd package for assocstats
 # requires GenomicRanges
 phiCorGR <- function(x, y, genomeSize=NULL, useCanonical=TRUE, ignore.strand=TRUE,
                      verbose=FALSE)  {
