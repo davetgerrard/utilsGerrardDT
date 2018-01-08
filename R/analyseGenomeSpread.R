@@ -96,9 +96,9 @@ analyseGenomeSpread.GR <- function(x, show.plots=FALSE, n.plotChroms=10, return.
   print(paste("The sequence with fewest features per Mb is", min.cpkb.chrom, "with" , round(min.cpkb, digits=3)))
   
   # calc coverage per chrom.
-  chrom.sums <- by(x.canonical, INDICES=as.character(seqnames(x.canonical)), FUN=function(y) sum(width(y)))
+  chrom.sums <- unlist(lapply(coverage(x.canonical), sum))
   chrom.sums.vec <- as.integer(chrom.sums)
-  chrom.sums.reduced <- by(x.reduced, INDICES=as.character(seqnames(x.reduced)), FUN=function(y) sum(width(y)))
+  chrom.sums.reduced <- unlist(lapply(coverage(x.reduced), sum)) 
   chrom.sums.vec.reduced <- as.integer(chrom.sums.reduced)
   names(chrom.sums.vec) <- names(chrom.sums)
   names(chrom.sums.vec.reduced) <- names(chrom.sums.reduced)
