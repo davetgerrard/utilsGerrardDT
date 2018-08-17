@@ -8,7 +8,7 @@ arseFromElbow <- function(x, y, plot.it=TRUE, plot.elbow=TRUE, ...)  {
   span.y <- max(y) - min(y)
   x2 <-   min(y) +  (((x-min(x)) / span.x) * span.y) # x2 values are evenly spaced between min and max of y
   
-  max.x2 <- max(x2)
+  max.x2 <- max(x2)   # with above scaling, this is equivalent to max(y)
   min.y <- min(y)
   
   br.dist <- sqrt((max.x2 - x2)^2 + (y-min.y)^2 )
@@ -24,3 +24,6 @@ arseFromElbow <- function(x, y, plot.it=TRUE, plot.elbow=TRUE, ...)  {
   }
   return(y[which.min(br.dist)])
 }
+
+
+# arseFromElbow(1:100, 1+(1/(100:1)), plot.it=T)
