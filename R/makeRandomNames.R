@@ -36,4 +36,4 @@ makeRandomNames(alphabet=LETTERS, req_len=10, string_len=4)
 #cat(finalSet[1:50], file="clipboard-", sep="\n")
 #cat(finalSet, file="clipboard-16384", sep="\n")  # need the ੢
 #cat(finalSet, file="C:/Temp/tempIds.txt"  , sep="\n")
-瘴楺眊㕡 to 
+#瘴楺眊㕡 to 
